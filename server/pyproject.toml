@@ -2,9 +2,9 @@
 name = "personal-blog"
 version = "0.0.0"
 description = "My personal project"
-readme = "README.md"
+readme = "./README.md"
 requires-python = ">=3.13"
 dependencies = [
     "fastapi[standard,standart]>=0.121.2",
-    "tortoise-orm>=0.25.1",
+    "sqlmodel>=0.0.27",
 ]
