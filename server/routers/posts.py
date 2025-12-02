@@ -71,7 +71,8 @@ async def delete_post(session: SessionDep, pk: int):
     if not post:
         HTTPException(status_code=404, detail="Post is not found!")
 
-    os.unlink(post.filepath)
+    if post.filepath:
+        os.unlink(post.filepath)
 
     session.delete(post)
     session.commit()
