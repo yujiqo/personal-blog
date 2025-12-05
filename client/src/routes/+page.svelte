@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Avatar from "$lib/components/ui/avatar/index.js";
   import * as Card from "$lib/components/ui/card/index.js";
-  import { badgeVariants } from "$lib/components/ui/badge/index.js";
+  import { Badge, badgeVariants } from "$lib/components/ui/badge/index.js";
 
 	import avatar from '$lib/assets/avatar.jpg';
 	import bento from '$lib/assets/bento.svg';
@@ -9,6 +9,14 @@
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
+
+  let options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  };
 </script>
 
 <Card.Root>
@@ -38,6 +46,9 @@
     {/if}
     <Card.Content>
       <p>{post.text}</p>
+      <Card.Description class="text-right">
+        <Badge variant="secondary">{new Date(post.updated_at).toLocaleString("en-US", options)}</Badge>
+      </Card.Description>
     </Card.Content>
   </Card.Root>
 {/each}
