@@ -9,6 +9,6 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<div class="w-3/5 m-auto my-10">
+<div class="w-2/5 m-auto my-10">
   {@render children()}
 </div>
