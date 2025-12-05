@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException, UploadFile, Form
 from sqlmodel import desc, select
 
 from ..db import UPLOAD_DIR, SessionDep
-from ..models import Post, PostBase, PostPublic
+from ..models import Post, PostPublic
 
 
 router = APIRouter(prefix="/posts", tags=["posts"])
@@ -28,7 +28,7 @@ def get_filetype(filename):
 
 @router.get("/", response_model=list[Post])
 async def get_posts(session: SessionDep):
-    posts = session.exec(select(Post).order_by(desc("created_at"))).all()
+    posts = session.exec(select(Post).order_by(desc("updated_at"))).all()
 
     return posts
 
@@ -55,7 +55,7 @@ async def update_post(session: SessionDep, pk: int, text: Annotated[str, Form()]
     db_post = session.get(Post, pk)
 
     if not db_post:
-        HTTPException(status_code=404, detail="Post is not found!")
+        raise HTTPException(status_code=404, detail="Post is not found!")
 
     db_post.text = text
     session.add(db_post)
@@ -69,7 +69,7 @@ async def delete_post(session: SessionDep, pk: int):
     post = session.get(Post, pk)
 
     if not post:
-        HTTPException(status_code=404, detail="Post is not found!")
+        raise HTTPException(status_code=404, detail="Post is not found!")
 
     if post.filepath:
         os.unlink(post.filepath)

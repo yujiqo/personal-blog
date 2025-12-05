@@ -5,6 +5,7 @@
   import * as Card from "$lib/components/ui/card/index.js";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import * as Field from "$lib/components/ui/field/index.js";
+  import * as ButtonGroup from "$lib/components/ui/button-group/index.js";
   import { Badge, badgeVariants } from "$lib/components/ui/badge/index.js";
   import { Button, buttonVariants } from "$lib/components/ui/button/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
@@ -31,19 +32,19 @@
   let text = $state("");
   let file: File | null;
 
-  async function handleSubmit() {
+  async function handleCreate() {
     const closeBtn = document.querySelector("button[data-dialog-close]") as HTMLButtonElement;
 
     closeBtn.click();
 
-    const formData = new FormData();
+    const data = new FormData();
 
-    formData.append("text", text);
-    if (file) formData.append("fileobj", file);
+    data.append("text", text);
+    if (file) data.append("fileobj", file);
 
     await fetch("http://127.0.0.1:8000/posts/", {
-      method: "post",
-      body: formData
+      method: "POST",
+      body: data
     });
 
     text = "";
@@ -53,6 +54,46 @@
 
     posts = await response.json();
   }
+
+  async function handleUpdate(event: Event) {
+    const button = event.currentTarget as HTMLButtonElement;
+    const closeBtn = button.parentElement?.parentElement?.querySelector("button[data-dialog-close]") as HTMLButtonElement;
+    const input = button.parentElement?.parentElement?.querySelector("input[id='text']") as HTMLInputElement;
+
+    const pk = button.dataset["pk"];
+
+    closeBtn.click();
+
+    const data = new URLSearchParams();
+
+    data.append("text", input.value);
+
+    await fetch(`http://127.0.0.1:8000/posts/${pk}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: data.toString()
+    });
+
+    const response = await fetch("http://127.0.0.1:8000/posts/");
+
+    posts = await response.json();
+  }
+
+  async function handleDelete(event: Event) {
+    const button = event.currentTarget as HTMLButtonElement;
+
+    const pk = button.dataset["pk"];
+
+    await fetch(`http://127.0.0.1:8000/posts/${pk}`, {
+      method: "DELETE",
+    });
+
+    const response = await fetch("http://127.0.0.1:8000/posts/");
+
+    posts = await response.json();
+  };
 </script>
 
 <Card.Root>
@@ -106,7 +147,7 @@
           </Field.Group>
         </Field.Set>
         <Dialog.Footer>
-          <Button onclick={handleSubmit}>Post</Button>
+          <Button onclick={handleCreate}>Post</Button>
         </Dialog.Footer>
       </Dialog.Content>
     </Dialog.Root>
@@ -125,7 +166,30 @@
     {/if}
     <Card.Content>
       <p>{post.text}</p>
-      <Card.Description class="text-right">
+      <Card.Description class="flex justify-between items-center mt-3">
+        <Dialog.Root>
+          <ButtonGroup.Root>
+            <Dialog.Trigger class={buttonVariants({ variant: "secondary" })}>Edit</Dialog.Trigger>
+            <ButtonGroup.Separator />
+            <Button variant="destructive" onclick={handleDelete} data-pk={post.id}>Delete</Button>
+          </ButtonGroup.Root>
+          <Dialog.Content class="sm:max-w-[425px]">
+            <Dialog.Header class="mb-3">
+              <Dialog.Title>Edit Post</Dialog.Title>
+            </Dialog.Header>
+            <Field.Set>
+              <Field.Group>
+                <Field.Field>
+                  <Field.Label for="text">Text</Field.Label>
+                  <Input id="text" type="text" value={post.text} />
+                </Field.Field>
+              </Field.Group>
+            </Field.Set>
+            <Dialog.Footer>
+              <Button onclick={handleUpdate} data-pk={post.id}>Confirm</Button>
+            </Dialog.Footer>
+          </Dialog.Content>
+        </Dialog.Root>
         <Badge variant="secondary">{new Date(post.updated_at).toLocaleString("en-US", options)}</Badge>
       </Card.Description>
     </Card.Content>
