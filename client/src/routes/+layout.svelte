@@ -1,5 +1,6 @@
 <script lang="ts">
-	import favicon from '$lib/assets/favicon.svg';
+	import './layout.css';
+	import favicon from '$lib/assets/favicon.ico';
 
 	let { children } = $props();
 </script>
@@ -8,4 +9,6 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-{@render children()}
+<div class="w-3/5 m-auto my-10">
+  {@render children()}
+</div>
