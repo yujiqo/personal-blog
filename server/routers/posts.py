@@ -3,7 +3,7 @@ from shutil import copyfileobj
 from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, UploadFile, Form
-from sqlmodel import select
+from sqlmodel import desc, select
 
 from ..db import UPLOAD_DIR, SessionDep
 from ..models import Post, PostBase, PostPublic
@@ -28,7 +28,7 @@ def get_filetype(filename):
 
 @router.get("/", response_model=list[Post])
 async def get_posts(session: SessionDep):
-    posts = session.exec(select(Post)).all()
+    posts = session.exec(select(Post).order_by(desc("created_at"))).all()
 
     return posts
 
